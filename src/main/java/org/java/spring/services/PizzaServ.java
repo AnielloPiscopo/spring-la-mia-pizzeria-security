@@ -32,7 +32,8 @@ public class PizzaServ {
 //		}
 		
 		List<Pizza> pizzasWithRelations = pizzas.stream()
-			    .peek(pizza -> Hibernate.initialize(pizza.getSpecialOffers()))
+			    .peek(p -> Hibernate.initialize(p.getSpecialOffers()))
+			    .peek(p->Hibernate.initialize(p.getIngredients()))
 			    .collect(Collectors.toList());
 		
 		return pizzasWithRelations;

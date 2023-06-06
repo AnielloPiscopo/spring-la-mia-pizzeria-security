@@ -47,6 +47,14 @@ public class Ingredient {
 		this.pizzas = pizzas;
 	}
 	
+	public void addPizza(Pizza pizza) {
+		this.pizzas.add(pizza);
+	}
+	
+	public void removePizza(Pizza pizza) {
+		this.pizzas.remove(pizza);
+	}
+	
 	public String getName() {
 		return name;
 	}

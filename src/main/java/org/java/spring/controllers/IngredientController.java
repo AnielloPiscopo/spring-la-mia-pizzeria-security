@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.java.spring.pojo.Ingredient;
+import org.java.spring.pojo.Pizza;
 import org.java.spring.services.IngredientServ;
+import org.java.spring.services.PizzaServ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,8 +22,6 @@ import jakarta.validation.Valid;
 @Controller
 @RequestMapping("/ingredients")
 public class IngredientController {
-	private static String pageTitle;
-
 	/**
 	 * 
 	 * Return the HTML file to view in the Page(index/trash) and with the model add to this one a list of Ingredient elements and the title for the page
@@ -70,8 +70,22 @@ public class IngredientController {
 		serv.save(ingredient);
 	}
 	
+	/**
+	 * 
+	 * Remove a Ingredient element from all its Pizza elements 
+	 */
+	private void removeIngredientFromPizzas(Ingredient i) {
+		for(Pizza p : i.getPizzas()) {
+			p.removeIngredient(i);
+			pizzaServ.save(p);
+		}
+	}
+	
 	@Autowired
 	private IngredientServ serv;
+	
+	@Autowired
+	private PizzaServ pizzaServ;
 	
 	/*
 	 * 
@@ -162,6 +176,9 @@ public class IngredientController {
 	public String delete(@PathVariable("id") int id) {
 		Optional<Ingredient> optIngredient = serv.findById(id);
 		Ingredient ingredient = optIngredient.get();
+		
+		removeIngredientFromPizzas(ingredient);
+		
 		serv.delete(ingredient);
 		return "redirect:/ingredients/trash";
 	}
@@ -173,6 +190,7 @@ public class IngredientController {
 	@PostMapping("/delete-all")
 	public String deleteAll() {
 		List<Ingredient> ingredients = serv.findAllTrashedIngredients();
+		ingredients.forEach(i->removeIngredientFromPizzas(i));
 		serv.deleteAll(ingredients);
 		return "redirect:/ingredients/trash";
 	}
