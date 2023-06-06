@@ -3,6 +3,7 @@ package org.java.spring.auth.conf;
 import org.java.spring.auth.services.UserServ;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,20 +24,37 @@ public class AuthConfig {
 	@SuppressWarnings("deprecation")
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	    
-//		http.authorizeHttpRequests()
-//		        .requestMatchers("/user").hasAuthority("USER")
-//		        .requestMatchers("/admin").hasAuthority("ADMIN")
-//		        .requestMatchers("/").permitAll()
-//	        .and().formLogin()
-//	        .and().logout();
-//	    
-//	    return http.build();
-		return http.authorizeRequests(a->
-				a.requestMatchers("/users/**").hasAnyAuthority("USER" , "ADMIN")
-				.requestMatchers("/admin/**").hasAuthority("ADMIN")
-				.requestMatchers("/**").permitAll())
-				.formLogin(f->f.permitAll()).logout(l->l.logoutSuccessUrl("/")).build();
+//		return http.authorizeRequests(a->
+//				a.requestMatchers("/**").hasAnyAuthority("USER" , "ADMIN")
+//				.requestMatchers("/admin/**").hasAuthority("ADMIN")
+//				.requestMatchers("/**").permitAll()
+//				)
+//				.formLogin(f->f.permitAll())
+//				.logout(l->l.logoutSuccessUrl("/"))
+//				.build();
+		
+		String[] adminMatchers = {
+				"/pizzas/create" , "/pizzas/edit/**" , "/pizzas/trash" ,"/pizzas/soft-delete/**" , "/pizzas/soft-delete-all" ,
+				"/pizzas/refresh/**" , "/pizzas/refresh-all" , "/pizzas/delete/**" , "/pizzas/delete-all",
+
+				"/special-offers/create" , "/special-offers/edit/**" , "/special-offers/trash" ,"/special-offers/soft-delete/**" , "/special-offers/soft-delete-all" ,
+				"/special-offers/refresh/**" , "/special-offers/refresh-all" , "/special-offers/delete/**" , "/special-offers/delete-all",
+
+				"/ingredients/create" , "/ingredients/edit/**" , "/ingredients/trash" ,"/ingredients/soft-delete/**" , "/ingredients/soft-delete-all" ,
+				"/ingredients/refresh/**" , "/ingredients/refresh-all" , "/ingredients/delete/**" , "/ingredients/delete-all",
+				};
+		String[] userMatchers = {"/pizzas/" , "/pizzas/show/**" , "/ingredients/" , "/special-offers/" , "/special-offers/show/**"};
+		
+		return http.authorizeRequests(a->a
+				.requestMatchers(userMatchers).hasAnyAuthority("USER" , "ADMIN")
+				.requestMatchers(HttpMethod.POST , "/pizzas/").hasAnyAuthority("USER" , "ADMIN")
+				.requestMatchers(adminMatchers).hasAnyAuthority("ADMIN")
+//				.requestMatchers("").hasAuthority("USER")
+				.requestMatchers("/").permitAll()
+				)
+				.formLogin(f->f.permitAll())
+				.logout(l->l.logoutSuccessUrl("/"))
+				.build();
 	}
 	
 	@Bean
@@ -46,7 +64,6 @@ public class AuthConfig {
 	
 	@Bean
 	DaoAuthenticationProvider authenticationProvider() {
-	
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 	 
 	    authProvider.setUserDetailsService(userDetailsService());

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class MainController {
 	
-	@GetMapping("/users")
+	@GetMapping("/")
 	public String index(Model model) {
 		String pageTitle = "Home";
 		model.addAttribute("title" , pageTitle);
